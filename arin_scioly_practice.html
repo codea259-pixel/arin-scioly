@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Arin's Science Olympiad Practice — Day 1</title>
+<style>
+  :root {
+    --blue: #1d4ed8;
+    --green: #16a34a;
+    --red: #dc2626;
+    --amber: #d97706;
+    --bg: #f4f7fb;
+    --card: #ffffff;
+    --text: #1f2937;
+    --muted: #6b7280;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+  }
+  .wrap {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 20px 16px 60px;
+  }
+  header {
+    text-align: center;
+    padding: 18px 0 8px;
+  }
+  header h1 {
+    font-size: 1.4rem;
+    margin: 0 0 4px;
+    color: var(--blue);
+  }
+  header p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+  .card {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 22px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+    margin-top: 16px;
+  }
+  .progress-outer {
+    background: #e5e7eb;
+    border-radius: 999px;
+    height: 10px;
+    overflow: hidden;
+    margin: 10px 0 4px;
+  }
+  .progress-inner {
+    background: var(--blue);
+    height: 100%;
+    width: 0%;
+    transition: width 0.3s ease;
+  }
+  .meta-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .timer {
+    font-weight: 700;
+  }
+  .timer.low { color: var(--red); }
+  .tag {
+    display: inline-block;
+    background: #e0e7ff;
+    color: var(--blue);
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 3px 9px;
+    border-radius: 999px;
+    margin-bottom: 10px;
+  }
+  .difficulty {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 999px;
+    margin-left: 6px;
+    margin-bottom: 10px;
+  }
+  .diff-5 { background: #dcfce7; color: var(--green); }
+  .diff-6 { background: #fef3c7; color: var(--amber); }
+  .diff-7 { background: #fee2e2; color: var(--red); }
+  .question {
+    font-size: 1.15rem;
+    line-height: 1.45;
+    margin: 6px 0 18px;
+  }
+  .choices {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .choice {
+    text-align: left;
+    padding: 13px 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    background: #fafafa;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .choice:hover { border-color: var(--blue); }
+  .choice.correct {
+    border-color: var(--green);
+    background: #dcfce7;
+    font-weight: 600;
+  }
+  .choice.incorrect {
+    border-color: var(--red);
+    background: #fee2e2;
+    font-weight: 600;
+  }
+  .choice[disabled] { cursor: default; }
+  .blurb {
+    margin-top: 18px;
+    padding: 16px;
+    border-radius: 12px;
+    background: #f0f5ff;
+    border-left: 4px solid var(--blue);
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+  .blurb.wrong-box { border-left-color: var(--red); background: #fff1f1; }
+  .btn {
+    display: inline-block;
+    margin-top: 16px;
+    padding: 12px 20px;
+    background: var(--blue);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .btn.secondary {
+    background: white;
+    color: var(--blue);
+    border: 2px solid var(--blue);
+  }
+  .btn.wide { width: 100%; }
+  .row-btns { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+  .stat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 16px;
+  }
+  .stat {
+    background: #f8fafc;
+    border-radius: 10px;
+    padding: 12px;
+    text-align: center;
+  }
+  .stat .num { font-size: 1.5rem; font-weight: 800; color: var(--blue); }
+  .stat .label { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+  .cat-breakdown { margin-top: 18px; }
+  .cat-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+    font-size: 0.92rem;
+  }
+  .cat-row .score.good { color: var(--green); font-weight: 700; }
+  .cat-row .score.mid { color: var(--amber); font-weight: 700; }
+  .cat-row .score.bad { color: var(--red); font-weight: 700; }
+  .history-item {
+    font-size: 0.85rem;
+    color: var(--muted);
+    padding: 6px 0;
+    border-bottom: 1px dashed #eee;
+  }
+  #printArea { display: none; }
+  @media print {
+    body * { visibility: hidden; }
+    #printArea, #printArea * { visibility: visible; }
+    #printArea { display: block; position: absolute; left: 0; top: 0; width: 100%; }
+    .print-q { page-break-inside: avoid; margin-bottom: 18px; }
+  }
+  footer {
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.78rem;
+    margin-top: 24px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>🔬 Arin's SciOly Practice</h1>
+    <p>Division A Prep — School Assessment in 7 Days</p>
+  </header>
+
+  <!-- START SCREEN -->
+  <div class="card" id="startScreen">
+    <p style="margin-top:0;">Today's set covers all five Division A categories: Life Science, Earth &amp; Space, Physical Science &amp; Chemistry, Technology &amp; Engineering, and Inquiry &amp; Nature of Science.</p>
+    <p>Questions start at a strong 5th-grade level and step up toward 6th-grade thinking — that's the point. Missing one isn't the goal breaking; it's the thing we fix together.</p>
+    <p><strong>Target: 30–40 minutes.</strong> Take your time, read each question twice before answering.</p>
+    <button class="btn wide" onclick="startQuiz()">Start Today's Set (24 questions)</button>
+    <button class="btn secondary wide" onclick="showHistory()">View My Past Scores</button>
+    <button class="btn secondary wide" onclick="showPrintable()">Get Printable Worksheet Version</button>
+  </div>
+
+  <!-- HISTORY SCREEN -->
+  <div class="card" id="historyScreen" style="display:none;">
+    <h2 style="margin-top:0;">My Practice History</h2>
+    <div id="historyList"></div>
+    <button class="btn secondary wide" onclick="backToStart()">Back</button>
+  </div>
+
+  <!-- QUIZ SCREEN -->
+  <div class="card" id="quizScreen" style="display:none;">
+    <div class="meta-row">
+      <span id="qCounter">Question 1 of 24</span>
+      <span class="timer" id="timer">0:30</span>
+    </div>
+    <div class="progress-outer"><div class="progress-inner" id="progressBar"></div></div>
+    <div style="margin-top:14px;">
+      <span class="tag" id="qCategory">Category</span><span class="difficulty" id="qDifficulty">Level 5</span>
+    </div>
+    <div class="question" id="qText"></div>
+    <div class="choices" id="qChoices"></div>
+    <div class="blurb" id="qBlurb" style="display:none;"></div>
+    <button class="btn wide" id="nextBtn" style="display:none;" onclick="nextQuestion()">Next Question →</button>
+  </div>
+
+  <!-- RESULTS SCREEN -->
+  <div class="card" id="resultsScreen" style="display:none;">
+    <h2 style="margin-top:0;" id="resultsHeadline">Set Complete!</h2>
+    <div class="stat-grid">
+      <div class="stat"><div class="num" id="statScore">0%</div><div class="label">Accuracy</div></div>
+      <div class="stat"><div class="num" id="statTime">0:00</div><div class="label">Time Spent</div></div>
+    </div>
+    <div class="cat-breakdown" id="catBreakdown"></div>
+    <div class="blurb" id="coachNote" style="margin-top:18px;"></div>
+    <div class="row-btns">
+      <button class="btn" onclick="startQuiz()">Retry This Set</button>
+      <button class="btn secondary" onclick="backToStart()">Done for Today</button>
+    </div>
+  </div>
+
+  <footer>Everything you do here stays saved only on this device (browser local storage). Nothing is uploaded or sent anywhere.</footer>
+</div>
+
+<!-- PRINTABLE WORKSHEET (hidden, shown only when printing) -->
+<div id="printArea"></div>
+
+<script>
+// ---------- QUESTION BANK ----------
+// difficulty: 5 = solid 5th-grade baseline, 6 = stepped-up 6th-grade reasoning
+const QUESTIONS = [
+  {cat:"Life Science", diff:5, q:"Which body system is mainly responsible for breaking down food so your body can use it?",
+    choices:["Digestive system","Skeletal system","Circulatory system","Nervous system"], correct:0,
+    blurb:"Right idea: the digestive system (mouth, stomach, intestines) breaks food into nutrients. The skeletal system supports your body, the circulatory system moves blood, and the nervous system sends signals — none of those digest food."},
+  {cat:"Life Science", diff:5, q:"A food chain shows energy moving from the sun to plants to animals. What do we call an animal that eats only plants?",
+    choices:["Carnivore","Herbivore","Omnivore","Decomposer"], correct:1,
+    blurb:"An herbivore eats only plants (like a rabbit or deer). A carnivore eats only meat, an omnivore eats both, and a decomposer breaks down dead material — different roles entirely."},
+  {cat:"Life Science", diff:6, q:"In a pond ecosystem, algae are eaten by small fish, and small fish are eaten by larger fish. If a disease wiped out most of the algae, what would most likely happen first?",
+    choices:["The larger fish population would increase immediately","The small fish would have less food and their numbers would likely drop","The water would become saltier","Nothing would change because fish don't need algae"], correct:1,
+    blurb:"Algae are the producers at the base of this food chain — the small fish depend on them directly for energy. Remove the base and the next level up (small fish) loses its food supply first; the effect on larger fish comes later, once small fish decline."},
+  {cat:"Life Science", diff:6, q:"Which of these is an adaptation that helps a cactus survive in the desert?",
+    choices:["Broad, flat leaves to catch more sunlight","Thick, waxy skin that reduces water loss","Roots that grow very deep to reach ocean water","Bright flowers that bloom only at night to attract fish"], correct:1,
+    blurb:"A cactus's thick, waxy outer layer slows down water evaporation — critical in a place where water is scarce. Broad flat leaves would actually lose more water, and cacti don't rely on ocean water or attract fish."},
+  {cat:"Earth & Space Science", diff:5, q:"What causes Earth to have day and night?",
+    choices:["Earth orbiting the sun once a year","Earth spinning on its axis once a day","The moon blocking the sun","The sun moving around Earth"], correct:1,
+    blurb:"Earth rotates (spins) on its axis about once every 24 hours — the side facing the sun has day, the side facing away has night. The yearly orbit around the sun causes seasons, not day/night."},
+  {cat:"Earth & Space Science", diff:5, q:"Which layer of Earth is made of hot, mostly solid rock that flows very slowly?",
+    choices:["Crust","Mantle","Outer core","Atmosphere"], correct:1,
+    blurb:"The mantle sits below the thin crust and is made of hot rock that moves extremely slowly, driving plate tectonics. The outer core is molten metal, and the atmosphere isn't a rock layer at all."},
+  {cat:"Earth & Space Science", diff:6, q:"A student notices the Moon looks like a thin crescent tonight. About how many days until it will look like a full circle (full moon)?",
+    choices:["About 1 day","About 2 weeks","About 6 months","About 1 year"], correct:1,
+    blurb:"The Moon's full cycle of phases takes about 29.5 days. A thin crescent is near the start of the cycle, and a full moon happens about two weeks later, roughly halfway through."},
+  {cat:"Earth & Space Science", diff:6, q:"Which best explains why the same side of the Moon always faces Earth?",
+    choices:["The Moon doesn't rotate at all","The Moon's rotation and its orbit around Earth take the same amount of time","Earth's gravity stops the Moon from spinning","The Moon is not actually spherical"], correct:1,
+    blurb:"This is called tidal locking: the Moon rotates on its axis in the same time it takes to orbit Earth (about 27.3 days), so the same face always points toward us. It IS spinning — just perfectly matched to its orbit."},
+  {cat:"Physical Science & Chemistry", diff:5, q:"Ice melting into water is an example of which kind of change?",
+    choices:["Chemical change","Physical change","Nuclear change","Biological change"], correct:1,
+    blurb:"Melting is a physical change — the substance is still water (H2O), just in a different state. A chemical change would create a new substance with different properties, like rust forming or wood burning."},
+  {cat:"Physical Science & Chemistry", diff:5, q:"What is the term for how much matter is packed into a given space?",
+    choices:["Weight","Volume","Density","Mass"], correct:2,
+    blurb:"Density is mass divided by volume — it tells you how tightly packed the matter is. Mass is just the amount of matter, volume is the space it takes up, and weight depends on gravity."},
+  {cat:"Physical Science & Chemistry", diff:6, q:"Two blocks are the same size (same volume), but Block A sinks in water and Block B floats. What does this tell you?",
+    choices:["Block A has less density than water","Block A has more density than water","Block B weighs more than Block A","Block A is made of a lighter material than Block B"], correct:1,
+    blurb:"For an object to sink, its density must be greater than the density of water; to float, its density must be less. Since they're the same size but A sinks and B floats, A must be denser than water — and denser than B, too."},
+  {cat:"Physical Science & Chemistry", diff:6, q:"A metal spoon left in a hot bowl of soup gets warm at the handle even though only the bowl end touches the soup. What is this an example of?",
+    choices:["Convection","Conduction","Radiation","Evaporation"], correct:1,
+    blurb:"Conduction is heat transfer through direct contact within a material — heat moves along the solid metal spoon from the hot end to your hand. Convection is heat moving through liquids/gases, and radiation travels through empty space (like sunlight)."},
+  {cat:"Technology & Engineering", diff:5, q:"Before building a solution to a problem, engineers usually do which step first?",
+    choices:["Build the final product","Sell the product","Define the problem and figure out what's needed","Throw away all previous ideas"], correct:2,
+    blurb:"The engineering design process starts with clearly understanding the problem and requirements — you can't design a good solution until you know exactly what you're solving for."},
+  {cat:"Technology & Engineering", diff:5, q:"Why do engineers often build and test a prototype before making a final version?",
+    choices:["Prototypes are always the final product","To find and fix problems early, when it's cheaper and easier","Because prototypes are required by law","To avoid doing any math"], correct:1,
+    blurb:"A prototype is a test version — building one lets engineers find design flaws early, when fixing them costs far less time and money than after the final product is made."},
+  {cat:"Technology & Engineering", diff:6, q:"A team is designing a bridge out of paper that must hold the most weight using the least material. Which shape, used as a support, is known for being especially strong for its weight?",
+    choices:["A flat rectangle","A triangle","A perfect circle only","A single straight stick"], correct:1,
+    blurb:"Triangles are a classic strong shape in engineering — their geometry resists bending and distributes force efficiently along the three sides, which is why you see triangular trusses in bridges and towers."},
+  {cat:"Technology & Engineering", diff:6, q:"An egg-drop team's first design cracks the egg on impact. What is the BEST next step in the engineering design process?",
+    choices:["Give up and try a completely unrelated idea with no testing","Analyze exactly why it failed, then redesign that specific weak point","Build the exact same design again without changes","Blame the egg for being too fragile"], correct:1,
+    blurb:"Good engineering is iterative: you test, analyze what specifically went wrong (impact point, cushioning, structure), and redesign based on that evidence — not guesswork or repeating the same failed design."},
+  {cat:"Inquiry & Nature of Science", diff:5, q:"In an experiment testing how sunlight affects plant growth, what is the ONE thing that should be changed between groups?",
+    choices:["The amount of sunlight (the variable being tested)","The type of pot used","The amount of water given","The room temperature"], correct:0,
+    blurb:"A fair test changes only the variable you're studying — here, sunlight — while keeping everything else (water, pot, temperature) the same. That way, any difference in growth can be traced back to sunlight alone."},
+  {cat:"Inquiry & Nature of Science", diff:5, q:"What do scientists call an idea that can be tested and might be proven wrong by an experiment?",
+    choices:["A law","A theory","A hypothesis","A conclusion"], correct:2,
+    blurb:"A hypothesis is a testable prediction made before an experiment. A theory is a well-supported explanation backed by lots of evidence, a law describes a consistent pattern, and a conclusion comes after analyzing results."},
+  {cat:"Inquiry & Nature of Science", diff:6, q:"A student tests three types of soil to see which grows the tallest bean plants, using only ONE plant per soil type. Why is this a weak experiment?",
+    choices:["Because bean plants never grow in soil","Because there's no way to measure height","Because a sample size of one doesn't account for natural variation between plants","Because soil type never affects plant growth"], correct:2,
+    blurb:"With only one plant per group, you can't tell if a height difference is due to the soil or just normal variation between individual plants. Scientists use multiple trials per group (replication) to get a reliable, trustworthy result."},
+  {cat:"Inquiry & Nature of Science", diff:6, q:"A graph shows a table's data as a line that goes up, then flattens out completely. What does the flat part most likely mean?",
+    choices:["The measurement stopped changing over that time period","The data collector made a mistake and it should be ignored","The graph is broken","Time stopped during the experiment"], correct:0,
+    blurb:"A flat section on a line graph shows the measured value stayed steady during that stretch of time — it's real data, not an error. Reading where a graph rises, falls, or flattens is a key data-analysis skill."},
+  {cat:"Life Science", diff:6, q:"Which pair correctly matches a body system with its main job?",
+    choices:["Skeletal system — pumps blood through the body","Respiratory system — brings oxygen into the body and removes carbon dioxide","Muscular system — filters waste from the blood","Circulatory system — supports and protects the body"], correct:1,
+    blurb:"The respiratory system (lungs, airways) handles gas exchange: oxygen in, carbon dioxide out. The circulatory system pumps blood, the skeletal system supports/protects, and the muscular system moves the body."},
+  {cat:"Earth & Space Science", diff:5, q:"Which of these is a renewable source of energy?",
+    choices:["Coal","Natural gas","Wind","Oil"], correct:2,
+    blurb:"Wind is renewable — it's naturally replenished and won't run out. Coal, natural gas, and oil are fossil fuels formed over millions of years and are considered non-renewable on a human timescale."},
+  {cat:"Physical Science & Chemistry", diff:5, q:"When you mix sugar into water and stir until it disappears, what actually happened to the sugar?",
+    choices:["It was destroyed and no longer exists","It dissolved and is still there, spread throughout the water","It turned into a gas and floated away","It changed into a completely different substance"], correct:1,
+    blurb:"Dissolving is a physical change — the sugar's tiny particles spread evenly through the water, but the sugar is still sugar (you could get it back by evaporating the water). Nothing was destroyed or chemically transformed."},
+  {cat:"Technology & Engineering", diff:5, q:"What is one reason engineers test the same design more than once?",
+    choices:["To waste time on purpose","Because one test result can be affected by chance, so repeating it checks for a reliable pattern","Because rules require exactly two tests, no more no less","To make the design more expensive"], correct:1,
+    blurb:"A single test can be thrown off by a fluke — repeating tests helps engineers see whether a result is consistent and trustworthy, or just a one-time accident."}
+];
+
+// ---------- STATE ----------
+let session = { questions: [], index: 0, correct: 0, startTime: null, answered: false, catStats: {} };
+let timerInterval = null;
+let timeLeft = 30;
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function screen(id) {
+  ["startScreen","historyScreen","quizScreen","resultsScreen"].forEach(s => {
+    document.getElementById(s).style.display = (s === id) ? "block" : "none";
+  });
+}
+
+function backToStart() { screen("startScreen"); }
+
+function startQuiz() {
+  session = { questions: shuffle(QUESTIONS), index: 0, correct: 0, startTime: Date.now(), answered: false, catStats: {} };
+  screen("quizScreen");
+  loadQuestion();
+}
+
+function loadQuestion() {
+  session.answered = false;
+  const q = session.questions[session.index];
+  document.getElementById("qCounter").textContent = `Question ${session.index + 1} of ${session.questions.length}`;
+  document.getElementById("progressBar").style.width = `${(session.index / session.questions.length) * 100}%`;
+  document.getElementById("qCategory").textContent = q.cat;
+  const diffEl = document.getElementById("qDifficulty");
+  diffEl.textContent = q.diff === 5 ? "Level 5" : (q.diff === 6 ? "Level 6 (stretch)" : "Level 7");
+  diffEl.className = "difficulty diff-" + q.diff;
+  document.getElementById("qText").textContent = q.q;
+  document.getElementById("qBlurb").style.display = "none";
+  document.getElementById("nextBtn").style.display = "none";
+
+  const choicesDiv = document.getElementById("qChoices");
+  choicesDiv.innerHTML = "";
+  const order = shuffle(q.choices.map((c, i) => ({ text: c, isCorrect: i === q.correct })));
+  order.forEach(opt => {
+    const btn = document.createElement("button");
+    btn.className = "choice";
+    btn.textContent = opt.text;
+    btn.onclick = () => selectAnswer(btn, opt.isCorrect, q);
+    choicesDiv.appendChild(btn);
+  });
+
+  startTimer();
+}
+
+function startTimer() {
+  clearInterval(timerInterval);
+  timeLeft = 30;
+  updateTimerDisplay();
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    updateTimerDisplay();
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      if (!session.answered) timeUp();
+    }
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  const el = document.getElementById("timer");
+  el.textContent = "0:" + String(timeLeft).padStart(2, "0");
+  el.className = "timer" + (timeLeft <= 10 ? " low" : "");
+}
+
+function timeUp() {
+  const q = session.questions[session.index];
+  session.answered = true;
+  recordCategory(q.cat, false);
+  const choicesDiv = document.getElementById("qChoices");
+  Array.from(choicesDiv.children).forEach(btn => {
+    btn.disabled = true;
+    if (btn.textContent === q.choices[q.correct]) btn.classList.add("correct");
+  });
+  const blurb = document.getElementById("qBlurb");
+  blurb.className = "blurb wrong-box";
+  blurb.style.display = "block";
+  blurb.innerHTML = "<strong>⏱ Time's up!</strong><br>" + q.blurb;
+  document.getElementById("nextBtn").style.display = "block";
+}
+
+function selectAnswer(btn, isCorrect, q) {
+  if (session.answered) return;
+  session.answered = true;
+  clearInterval(timerInterval);
+  const choicesDiv = document.getElementById("qChoices");
+  Array.from(choicesDiv.children).forEach(b => {
+    b.disabled = true;
+    if (b.textContent === q.choices[q.correct]) b.classList.add("correct");
+  });
+  if (!isCorrect) btn.classList.add("incorrect");
+  if (isCorrect) session.correct++;
+  recordCategory(q.cat, isCorrect);
+
+  const blurb = document.getElementById("qBlurb");
+  blurb.className = "blurb" + (isCorrect ? "" : " wrong-box");
+  blurb.style.display = "block";
+  blurb.innerHTML = (isCorrect ? "<strong>✅ Correct!</strong><br>" : "<strong>❌ Not quite.</strong><br>") + q.blurb;
+  document.getElementById("nextBtn").style.display = "block";
+}
+
+function recordCategory(cat, correct) {
+  if (!session.catStats[cat]) session.catStats[cat] = { correct: 0, total: 0 };
+  session.catStats[cat].total++;
+  if (correct) session.catStats[cat].correct++;
+}
+
+function nextQuestion() {
+  session.index++;
+  if (session.index >= session.questions.length) {
+    finishQuiz();
+  } else {
+    loadQuestion();
+  }
+}
+
+function finishQuiz() {
+  clearInterval(timerInterval);
+  const totalTime = Math.round((Date.now() - session.startTime) / 1000);
+  const pct = Math.round((session.correct / session.questions.length) * 100);
+
+  document.getElementById("statScore").textContent = pct + "%";
+  document.getElementById("statTime").textContent =
+    Math.floor(totalTime / 60) + ":" + String(totalTime % 60).padStart(2, "0");
+
+  const headline = document.getElementById("resultsHeadline");
+  headline.textContent = pct >= 85 ? "Great work today! 🎉" : pct >= 65 ? "Solid effort — let's tighten a few spots." : "Good push. This is exactly what practice is for.";
+
+  const breakdown = document.getElementById("catBreakdown");
+  breakdown.innerHTML = "<div style='font-weight:700;margin-bottom:6px;'>By Category</div>";
+  let weakest = null, weakestPct = 101;
+  Object.entries(session.catStats).forEach(([cat, s]) => {
+    const cp = Math.round((s.correct / s.total) * 100);
+    if (cp < weakestPct) { weakestPct = cp; weakest = cat; }
+    const cls = cp >= 80 ? "good" : cp >= 50 ? "mid" : "bad";
+    const row = document.createElement("div");
+    row.className = "cat-row";
+    row.innerHTML = `<span>${cat}</span><span class="score ${cls}">${s.correct}/${s.total} (${cp}%)</span>`;
+    breakdown.appendChild(row);
+  });
+
+  const coachNote = document.getElementById("coachNote");
+  coachNote.innerHTML = `<strong>Coach's note:</strong> ${
+    weakest ? `Focus tomorrow on <strong>${weakest}</strong> — that's where the most points are waiting to be picked up.` : "Keep this pace going!"
+  } ${pct >= 85 ? "You're tracking well ahead for the assessment — keep the reps going and don't get complacent." : pct >= 65 ? "You're on a workable path to qualify, but the weak category above needs direct attention, not just more random questions." : "This score alone doesn't predict the assessment — what matters is whether the weak spots get fixed before test day. Let's target them directly."}`;
+
+  saveAttempt(pct, totalTime, session.catStats);
+  screen("resultsScreen");
+}
+
+// ---------- LOCAL STORAGE ----------
+function saveAttempt(pct, totalTime, catStats) {
+  try {
+    const history = JSON.parse(localStorage.getItem("arin_scioly_history") || "[]");
+    history.push({
+      date: new Date().toISOString(),
+      score: pct,
+      timeSeconds: totalTime,
+      catStats
+    });
+    localStorage.setItem("arin_scioly_history", JSON.stringify(history));
+  } catch (e) {
+    console.error("Could not save progress:", e);
+  }
+}
+
+function showHistory() {
+  let history = [];
+  try {
+    history = JSON.parse(localStorage.getItem("arin_scioly_history") || "[]");
+  } catch (e) {}
+  const list = document.getElementById("historyList");
+  if (history.length === 0) {
+    list.innerHTML = "<p>No attempts saved yet on this device — finish a set to start tracking progress!</p>";
+  } else {
+    list.innerHTML = "";
+    history.slice().reverse().forEach(h => {
+      const d = new Date(h.date);
+      const div = document.createElement("div");
+      div.className = "history-item";
+      div.textContent = `${d.toLocaleDateString()} ${d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})} — Score: ${h.score}% — Time: ${Math.floor(h.timeSeconds/60)}:${String(h.timeSeconds%60).padStart(2,'0')}`;
+      list.appendChild(div);
+    });
+  }
+  screen("historyScreen");
+}
+
+// ---------- PRINTABLE WORKSHEET ----------
+function showPrintable() {
+  const area = document.getElementById("printArea");
+  let html = "<h1>Arin's SciOly Practice Worksheet</h1><p>Answer each question, then check the answer key at the end.</p>";
+  QUESTIONS.forEach((q, i) => {
+    html += `<div class="print-q"><strong>${i+1}. [${q.cat}] </strong>${q.q}<br>`;
+    q.choices.forEach((c, j) => {
+      html += `&nbsp;&nbsp;${String.fromCharCode(65+j)}) ${c}<br>`;
+    });
+    html += "</div>";
+  });
+  html += "<h2>Answer Key</h2><ol>";
+  QUESTIONS.forEach(q => {
+    html += `<li>${String.fromCharCode(65+q.correct)} — ${q.blurb}</li>`;
+  });
+  html += "</ol>";
+  area.innerHTML = html;
+  window.print();
+}
+</script>
+</body>
+</html>
